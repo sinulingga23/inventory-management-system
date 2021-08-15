@@ -15,6 +15,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="{{ asset('AdminLTE-3.1.0/plugins/fontawesome-free/css/all.min.css') }}">
+  @yield('css-scripts')
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('AdminLTE-3.1.0/dist/css/adminlte.min.css') }}">
   @yield('css')
@@ -144,7 +145,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Starter Page</h1>
+            <h1 class="m-0">Inventory Management v0.1</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
@@ -183,6 +184,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <script src="{{ asset('AdminLTE-3.1.0/plugins/jquery/jquery.min.js') }}"></script>
 <!-- Bootstrap 4 -->
 <script src="{{ asset('AdminLTE-3.1.0/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+@yield('plugins-scripts')
 <!-- AdminLTE App -->
 <script src="{{ asset('AdminLTE-3.1.0/dist/js/adminlte.min.js') }}"></script>
 @yield('scripts')
