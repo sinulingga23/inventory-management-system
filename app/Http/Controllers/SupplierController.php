@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SupplierController extends Controller
 {
@@ -86,7 +87,7 @@ class SupplierController extends Controller
         }
     }
 
-    public function delete(Request $request, $supplierId)
+    public function destroy(Request $request, $supplierId)
     {
         $request->validate([
             'supplier-delete-id' => 'required|integer|exists:suppliers,supplier_id',
@@ -96,7 +97,7 @@ class SupplierController extends Controller
         if ($request->input('supplier-delete-id') != $supplierId || !preg_match($pattern, $supplierId))
         {
             return redirect(route('suppliers.index'))->with([
-                'failed-delete-supplier' => 'Request tidak valid',
+                'failed-delete-supplier' => 'Request tidak valid.',
             ]);
         }
 
@@ -106,6 +107,9 @@ class SupplierController extends Controller
             if (!empty($currentSupplier))
             {
                 $currentSupplier->delete();
+                return redirect(route('suppliers.index'))->with([
+                    'success-delete-supplier' => 'Berhasil menghapus data.'
+                ]);
             }
         }
         catch (\Exception $e) {

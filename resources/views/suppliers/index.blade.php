@@ -10,6 +10,8 @@
     <!-- Select2 -->
     <link rel="stylesheet" href="{{ asset('AdminLTE-3.1.0/plugins/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE-3.1.0/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="{{ asset('AdminLTE-3.1.0/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 @endsection
 
 @section('container')
@@ -46,6 +48,14 @@
                           <div class="alert alert-danger">{{ session('failed-update-supplier') }}</div>
                           @endif
 
+                          @if (session('success-delete-supplier'))
+                          <div class="alert alert-success">{{ session('success-delete-supplier') }}</div>
+                          @endif
+
+                          @if (session('failed-delete-supplier'))
+                          <div class="alert alert-danger">{{ session('failed-delete-supplier') }}</div>
+                          @endif
+
                           @if ($errors->any())
                           <div class="alert alert-warning">Please insert with valid value.</div>
                           @endif
@@ -78,7 +88,7 @@
             <h4 class="modal-title">Form: Tambah Data</h4>
             </div>
             <div class="modal-body">
-              <form action="{{ route('suppliers.store') }}" method="POST">
+              <form action="{{ route('suppliers.store') }}" method="POST" id="form-add-supplier">
                 @csrf
                 <div class="form-group">
                   <label for="supplier-add-name">Supplier</label>
@@ -136,6 +146,15 @@
         <!-- /.modal-dialog -->
       </div>
       <!-- /.modal -->
+
+      <div class="row" style="display: none;">
+        <form action="#" method="POST" id="form-delete-supplier">
+          @csrf
+          @method('DELETE')
+          <input type="number" name="supplier-delete-id" id="supplier-delete-id" required>
+          <button type="submit" name="btn-delete-supplier" id="btn-delete-supplier"></button>
+        </form>
+      </div>
 @endsection
 
 @section('plugins-scripts')
@@ -152,39 +171,20 @@
     <script src="{{ asset('AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
     <script src="{{ asset('AdminLTE-3.1.0/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
-    <!-- Select2 -->
-    <script src="{{ asset('AdminLTE-3.1.0/plugins/select2/js/select2.full.min.js') }}"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="{{ asset('AdminLTE-3.1.0/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 @endsection
 
 @section('scripts')
     <script>
       const editSupplier = function() {
         document.addEventListener('click', function(event) {
-
+          event.preventDefault();
           if (event.target.classList.contains('edit-supplier')) {
-            fetch(`http://127.0.0.1:8000/api/suppliers/${event.target.id}`, {
-              method: 'GET',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-              }
-            })
-            .then(response => {
-              if (response) {
-                return response.json();
-              }
-            })
-            .then(result => {
-              if (result.statusCode === 200) {
-                document.querySelector('#form-update-supplier').setAttribute('action', `http://127.0.0.1:8000/suppliers/${result.data.supplierId}`);
-                document.querySelector('#supplier-edit-id').setAttribute('value', result.data.supplierId);
-                document.querySelector('#supplier-edit-name').setAttribute('value', result.data.supplier);
-                document.querySelector('#supplier-edit-address').value = result.data.address;
-              }
-            })
-            .catch(errors => {
-              console.log(errors);
-            });
+            updateSupplier({supplierId: event.target.id});
+          } else if (event.target.classList.contains('delete-supplier')) {
+            deleteSupplier({supplierId: event.target.id, target: event.target});
           }
         });
       }
@@ -192,28 +192,58 @@
       const addSupplier = function() {
         document.querySelector('#btn-submit-supplier').addEventListener('click', function(event) {
           event.preventDefault();
-          document.querySelector('#btn-add-supplier').click();
+          document.querySelector('#form-add-supplier').submit();
         });
       }
 
-      const updateSupplier = function() {
-        document.querySelector('#btn-edit-supplier').addEventListener('click', function(event) {
-          event.preventDefault();
-          document.querySelector('#btn-update-supplier').click();
+      const updateSupplier = function(object) {
+        fetch(`http://127.0.0.1:8000/api/suppliers/${object.supplierId}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => {
+            if (response) {
+              return response.json();
+            }
+          })
+          .then(result => {
+            if (result.statusCode === 200) {
+              document.querySelector('#form-update-supplier').setAttribute('action', `http://127.0.0.1:8000/suppliers/${result.data.supplierId}`);
+              document.querySelector('#supplier-edit-id').setAttribute('value', result.data.supplierId);
+              document.querySelector('#supplier-edit-name').setAttribute('value', result.data.supplier);
+              document.querySelector('#supplier-edit-address').value = result.data.address;
+            }
+          })
+          .catch(errors => {
+            console.log(errors);
+          });
+          document.querySelector('#btn-edit-supplier').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.querySelector('#form-update-supplier').submit();
+          });
+      }
+
+      const deleteSupplier = function(object) {
+        Swal.fire({
+          title: 'Anda yakin data ini mau dihapus?',
+          showDenyButton: true,
+          showCancelButton: false,
+          confirmButtonText: 'Hapus',
+          denyButtonText: 'Batal',
+        })
+        .then(result => {
+          if (result.isConfirmed) {
+            document.querySelector('#form-delete-supplier').setAttribute('action', `http://127.0.0.1:8000/suppliers/${object.supplierId}/delete`);
+            document.querySelector('#supplier-delete-id').setAttribute('value', object.supplierId);
+            document.querySelector('#form-delete-supplier').submit();
+          }
         });
       }
 
         $(document).ready(function() {
-            $(function () {
-                //Initialize Select2 Elements
-                $('.select2').select2()
-
-                //Initialize Select2 Elements
-                $('.select2bs4').select2({
-                    theme: 'bootstrap4'
-                })
-            });
-
             $('#suppliers-table').DataTable( {
               responsive: true,
               lengthChange: false,
@@ -237,9 +267,8 @@
             }
           );
 
-          editSupplier();
           addSupplier();
-          updateSupplier();
+          editSupplier();
         });
 
     </script>

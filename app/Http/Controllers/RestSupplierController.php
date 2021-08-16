@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\SupplierResource;
 use App\Models\Supplier;
-use NotFoundResourceException;
-use Exception;
 
 class RestSupplierController extends Controller
 {
@@ -81,7 +79,7 @@ class RestSupplierController extends Controller
                     }
 
                     $edit = '<a href="#"><i class="fas fa-edit edit-supplier" data-toggle="modal" data-target="#modal-edit-supplier" id="' . $supplier->supplier_id . '"></i></a>';
-                    $delete = '<a href="#"><i class="fas fa-trash-alt" id="' . $supplier->supplier_id . '"></i></a>';
+                    $delete = '<a href="#"><i class="fas fa-trash-alt delete-supplier" id="' . $supplier->supplier_id . '"></i></a>';
                     $item["options"] = $edit . '&emsp;' . $delete;
                     $data[] = $item;
                 }
