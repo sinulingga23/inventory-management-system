@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\CategoryController;
 use App\Models\Supplier;
 
 /*
@@ -23,3 +24,5 @@ Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.
 Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
 Route::put('/suppliers/{supplierId}', [SupplierController::class, 'update'])->name('suppliers.update');
 Route::delete('/suppliers/{supplierId}/delete', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');

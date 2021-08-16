@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RestSupplierController;
+use App\Http\Controllers\RestCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,3 +23,5 @@ use App\Http\Controllers\RestSupplierController;
 
 Route::post('/server-side/suppliers', [RestSupplierController::class, 'serverSideProcessing']);
 Route::get('/suppliers/{supplierId}', [RestSupplierController::class, 'getSupplierBySupplierId']);
+
+Route::post('/server-side/categories', [RestCategoryController::class, 'serverSideProcessing']);
