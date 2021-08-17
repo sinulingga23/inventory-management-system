@@ -18,4 +18,11 @@ class Category extends Model
     {
         return $this->hasMany(Product::class, 'product_id');
     }
+
+    protected static function booted()
+    {
+        static::creating(function(self $model) {
+            $model->updated_at = null;
+        });
+    }
 }

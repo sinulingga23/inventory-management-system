@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\CategoryResource;
 
 class RestCategoryController extends Controller
 {
@@ -76,7 +78,7 @@ class RestCategoryController extends Controller
                     $item['updated_at'] = date('d M Y', strtotime($category->updated_at));
                 }
 
-                $edit = '<a href="#><i class="fas fa-edit edit-category" data-toggle="modal" data-target="modal-edit-category" id="' . $category->category_id . '"></i></a>';
+                $edit = '<a href="#"><i class="fas fa-edit edit-category" data-toggle="modal" data-target="#modal-update-category" id="' . $category->category_id . '"></i></a>';
                 $delete = '<a href="#"><i class="fas fa-trash-alt delete-category" id="' . $category->category_id .'"></i></a>';
                 $item['options'] = $edit . '&emsp;' . $delete;
                 $data[] = $item;
@@ -89,5 +91,89 @@ class RestCategoryController extends Controller
             'recordsFiltered' => intval($recordsFiltered),
             'data' => $data,
         ],200);
+    }
+
+    /**
+     * This function uses to check is already category or not
+     * @param string $categoryCode Category code which will be checked.
+     */
+    public function isCategoryCodeExists($categoryCode)
+    {
+        if (empty($categoryCode))
+        {
+            return response()->json([
+                'statusCode' => 400,
+                'message' => 'Request tidak valid',
+            ], 400);
+        }
+
+        $validator = Validator::make(['category-code' => $categoryCode], [
+            'category-code' => 'required|string|exists:categories,code',
+        ]);
+
+        if (!$validator->fails())
+        {
+            return response()->json([
+                'statusCode' => 200,
+                'isExists' => true,
+                'message' => 'Code ditemukan.'
+            ],200);
+        }
+        else
+        {
+            return response()->json([
+                'statusCode' => 404,
+                'isExists' => false,
+                'message' => 'Code tidak ditemukan.',
+            ],404);
+        }
+    }
+
+    /**
+     * This function uses to get category based on Id
+     * @param integer $categoryId The primary key of category.
+     */
+    public function getCategoryByCategoryId($categoryId)
+    {
+        $pattern = '/^[0-9]+$/';
+        if (!preg_match($pattern, $categoryId))
+        {
+            return response()->json([
+                'statusCode' => 400,
+                'message' => 'Request tidak valid.',
+            ],400);
+        }
+
+        $validator = Validator::make(['category-id' => $categoryId], [
+            'category-id' => 'exists:categories,category_id'
+        ]);
+
+        // category is found
+        if (!$validator->fails())
+        {
+            try
+            {
+                return response()->json([
+                    'statusCode' => 200,
+                    'message' => 'Data ditemukan.',
+                    'data' => new CategoryResource(Category::find($categoryId)),
+                ], 200);
+            }
+            catch (\Exception $e)
+            {
+                return response()->json([
+                    'statusCode' => 500,
+                    'message' => 'Terjadi kesalahan.',
+                    'errors' => $e->getMessage(),
+                ], 500);
+            }
+        }
+        else // category is not found
+        {
+            return response()->json([
+                'statusCode' => 404,
+                'message' => 'Data tidak ditemukan.',
+            ], 404);
+        }
     }
 }

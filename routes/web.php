@@ -26,3 +26,6 @@ Route::put('/suppliers/{supplierId}', [SupplierController::class, 'update'])->na
 Route::delete('/suppliers/{supplierId}/delete', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+Route::put('/categories/{categoryId}', [CategoryController::class, 'update'])->name('categoris.update');
+Route::delete('/categories/{categoryId}/delete', [CategoryController::class, 'destroy'])->name('categoris.destroy');

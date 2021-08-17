@@ -20,7 +20,7 @@
     <div class="row">
       <div class="col-3">
         <td>
-          <button type="button" class="btn btn-primary btn-sm">Tambah Data</button>
+          <button type="button" class="btn btn-primary btn-sm"  data-toggle="modal" data-target="#modal-add-category">Tambah Data</button>
         </td>
       </div>
     </div>
@@ -33,12 +33,38 @@
                 <h3>Data Kategori</h3>
               </div>
               <div class="col-8">
+                @if (session('success-add-category'))
+                <div class="alert alert-success">{{ session('success-add-category') }}</div>
+                @endif
 
+                @if (session('failed-add-category'))
+                <div class="alert alert-danger">{{ session('failed-add-category') }}</div>
+                @endif
+
+                @if (session('success-update-category'))
+                <div class="alert alert-success">{{ session('success-update-category') }}</div>
+                @endif
+
+                @if (session('failed-update-category'))
+                <div class="alert alert-danger">{{ session('success-update-caetegory') }}</div>
+                @endif
+
+                @if (session('success-delete-category'))
+                <div class="alert alert-success">{{ session('success-delete-category') }}</div>
+                @endif
+
+                @if (session('failed-delete-category'))
+                <div class="alert alert-danger">{{ session('success-delete-caetegory') }}</div>
+                @endif
+
+                @if ($errors->any())
+                  <div class="alert alert-warning">Please insert with valid value.</div>
+                @endif
               </div>
             </div>
           </div>
           <div class="card-body">
-            <table id="categories-table" class="table-bordered table-striped">
+            <table id="categories-table" class="table table-bordered table-striped">
               <thead>
                 <th>ID Kategori</th>
                   <th>Kode</th>
@@ -54,6 +80,77 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="modal fade" id="modal-add-category">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modeal-header">
+          <h4 class="modal-title">Form: Tambah Data</h4>
+        </div>
+        <div class="modal-body">
+          <form action="{{ route('categories.store') }}" method="POST">
+            @csrf
+            <div class="form-group">
+              <label for="category-add-code">Kode Kategori</label>
+              <input type="text" class="form-control" name="category-add-code" value="{{ old('category-add-code') }}" id="category-add-code" maxlength="150" placeholder="Isi Kode..." required>
+              <p class="text text-danger">{{ $errors->first('category-add-code') }}</p>
+              <p class="text text-danger" id="category-code-exists" style="display: none;">Kode Kategori telah digunakan.</p>
+            </div>
+            <div class="form-group">
+              <label for="category-add-name">Kategori</label>
+              <input type="text" class="form-control" name="category-add-name" value="{{ old('category-add-name') }}" id="category-add-name" maxlength="150" placeholder="Isi Category..." required>
+              <p class="text text-danger">{{ $errors->first('category-add-name') }}</p>
+            </div>
+            <div class="form-group">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-primary">Tambah</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modal-update-category">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modeal-header">
+          <h4 class="modal-title">Form: Edit Data</h4>
+        </div>
+        <div class="modal-body">
+          <form action="#" method="POST" id="form-update-category">
+            @csrf
+            @method('PUT')
+            <div class="form-group">
+              <label for="category-update-code">Kode Kategori</label>
+              <input type="text" class="form-control" name="category-update-code" value="{{ old('category-update-code') }}" id="category-update-code" maxlength="150" placeholder="Isi Kode..."  readonly required>
+              <p class="text text-danger">{{ $errors->first('category-update-code') }}</p>
+              <p class="text text-danger" id="category-code-exists" style="display: none;">Kode Kategori telah digunakan.</p>
+            </div>
+            <div class="form-group">
+              <label for="category-update-name">Kategori</label>
+              <input type="text" class="form-control" name="category-update-name" value="{{ old('category-update-name') }}" id="category-update-name" maxlength="150" placeholder="Isi Category..." required>
+              <p class="text text-danger">{{ $errors->first('category-update-name') }}</p>
+            </div>
+            <input type="number" name="category-update-id" id="category-update-id" style="display: none;" required>
+            <div class="form-group">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-primary" id="btn-update-category">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="display: none;">
+    <form action="#" method="POST" id="form-delete-category">
+      @csrf
+      @method('DELETE')
+      <input type="number" name="category-delete-id" id="category-delete-id" required>
+      <button type="submit" name="btn-delete-category" id="btn-delete-category"></button>
+    </form>
   </div>
 @endsection
 
@@ -78,6 +175,77 @@
 
 @section('scripts')
   <script>
+    const validateFormaAddCategory = function() {
+      document.querySelector('#category-add-code').addEventListener('change', function(event) {
+        fetch(`http://127.0.0.1:8000/api/suppliers/${event.target.value}/code-check`, {
+          method: 'GET',
+          headers: {
+           'Accept': 'application/json',
+           'Content-Type': 'application/json',
+          }
+        })
+        .then(response => {
+          if (response) {
+            return response.json();
+          }
+        })
+        .then(result => {
+          if (result.isExists) {
+            document.querySelector('#category-code-exists').style.display = 'block';
+          } else {
+            document.querySelector('#category-code-exists').style.display = 'none';
+          }
+        });
+      });
+    }
+
+    const listenOptions = function() {
+      document.addEventListener('click', function(event) {
+        event.preventDefault();
+        if (event.target.classList.contains('edit-category')) {
+          fetch(`http://127.0.0.1:8000/api/categories/${event.target.id}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => {
+            if (response) {
+              return response.json();
+            }
+          })
+          .then(result => {
+            if (result.statusCode == 200) {
+              document.querySelector('#form-update-category').setAttribute('action', `http://127.0.0.1:8000/categories/${event.target.id}`);
+              document.querySelector('#category-update-code').setAttribute('value', result.data.code);
+              document.querySelector('#category-update-name').setAttribute('value', result.data.category);
+              document.querySelector('#category-update-id').setAttribute('value', result.data.categoryId);
+            }
+          })
+          .catch(err => {
+          })
+        } else if (event.target.id === "btn-update-category") {
+          document.querySelector('#form-update-category').submit();
+        } else if (event.target.classList.contains('delete-category')) {
+          Swal.fire({
+            title: 'Anda yakin data ini mau dihapus?',
+            showDenyButton: true,
+            showCancelButton: false,
+            confirmButtonText: 'Hapus',
+            denyButtonText: 'Batal',
+          })
+          .then(result => {
+            if (result.isConfirmed) {
+              document.querySelector('#form-delete-category').setAttribute('action', `http://127.0.0.1:8000/categories/${event.target.id}/delete`);
+              document.querySelector('#category-delete-id').setAttribute('value', event.target.id);
+              document.querySelector('#form-delete-category').submit();
+            }
+          })
+        }
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       $('#categories-table').DataTable({
         responsive: true,
@@ -100,6 +268,9 @@
           { data: 'options', orderable: false, searchable: false, }
         ],
       });
+
+      validateFormaAddCategory();
+      listenOptions();
     });
   </script>
 @endsection

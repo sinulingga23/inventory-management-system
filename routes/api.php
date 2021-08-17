@@ -24,4 +24,6 @@ use App\Http\Controllers\RestCategoryController;
 Route::post('/server-side/suppliers', [RestSupplierController::class, 'serverSideProcessing']);
 Route::get('/suppliers/{supplierId}', [RestSupplierController::class, 'getSupplierBySupplierId']);
 
+Route::get('/categories/{categoryId}', [RestCategoryController::class, 'getCategoryByCategoryId']);
 Route::post('/server-side/categories', [RestCategoryController::class, 'serverSideProcessing']);
+Route::get('/suppliers/{categoryCode}/code-check', [RestCategoryController::class, 'isCategoryCodeExists']);
